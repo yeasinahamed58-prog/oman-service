@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oman Service</title>
+<style>
+body{font-family:Arial;background:#f1f5f4;margin:0}
+header{background:#087f5b;color:white;padding:20px}
+input{padding:12px;width:90%;border-radius:8px;border:0}
+main{padding:16px}
+.services{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.service{background:white;padding:24px 5px;text-align:center;border-radius:10px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+<h1>Oman Service</h1>
+<p>Find workers in Oman</p>
+<input id="search" placeholder="Search services..." oninput="searchServices()">
+</header>
+<main>
+<h2>Choose a Service</h2>
+<h3>Register as a Worker</h3>
+<input id="workerName" placeholder="Your name" style="width:90%;padding:10px;margin:5px 0">
+<input id="workerPhone" placeholder="Phone number +968..." style="width:90%;padding:10px;margin:5px 0">
+<input id="workerCity" placeholder="City (e.g. Muscat, Seeb, Sohar)" style="width:90%;padding:10px;margin:5px 0">
+<select id="workerType" style="width:96%;padding:10px;margin:5px 0">
+<option>Electrician</option><option>Plumber</option><option>Driver</option><option>AC Technician</option><option>Cleaning</option><option>Other Services</option>
+</select>
+<button onclick="registerWorker()">Register Worker</button>
+<h3>Available Workers</h3>
+<div id="workerList"></div>
+<div id="contact" style="display:none;background:white;padding:16px;border-radius:10px;margin-bottom:15px"><h3 id="chosen"></h3><p>Contact a service worker</p><input id="phone" type="tel" placeholder="Worker phone e.g. +968..." style="box-sizing:border-box;width:100%;border:1px solid #ccc"><p><button onclick="callWorker()">Call Worker</button> <button onclick="whatsappWorker()">WhatsApp</button></p></div>
+<div class="services">
+<div class="service" onclick="openService('Electrician')">Electrician</div>
+<div class="service" onclick="openService('Plumber')">Plumber</div>
+<div class="service" onclick="openService('Driver')">Driver</div>
+<div class="service" onclick="openService('AC Technician')">AC Technician</div>
+<div class="service" onclick="openService('Cleaning')">Cleaning</div>
+<div class="service" onclick="openService('Other Services')">Other Services</div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db = window.supabase.createClient(
+  'https://akgccscqnnmfdcnrliuw.supabase.co',
+  'sb_publishable_vTh846CiHW5K1pya-AqhKw_1yKayC8w'
+);
+
+async function renderWorkers(filter='') {
+  const list = document.getElementById('workerList');
+  list.textContent = 'Loading workers...';
+
+  let query = db.from('workers')
+    .select('id,name,phone,type,city')
+    .order('id', {ascending: false});
+
+  if (filter) query = query.eq('type', filter);
+
+  const {data, error} = await query;
+  list.innerHTML = '';
+
+  if (error) {
+    list.textContent = 'Could not load workers: ' + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.textContent = 'No workers registered for this service yet.';
+    return;
+  }
+
+  data.forEach(w => {
+    const card = document.createElement('div');
+    card.style.cssText =
+      'background:white;padding:12px;margin:8px 0;border-radius:8px';
+
+    const title = document.createElement('h3');
+    title.textContent = w.name + ' — ' + w.type;
+
+    const phone = document.createElement('p');
+    phone.textContent = w.phone;
+
+    const city = document.createElement('p');
+    city.textContent = 'City: ' + (w.city || 'Not specified');
+
+    const call = document.createElement('a');
+    call.textContent = 'Call Worker';
+    call.href = 'tel:' + w.phone;
+    call.style.marginRight = '15px';
+
+    const wa = document.createElement('a');
+    wa.textContent = 'WhatsApp';
+    wa.href = 'https://wa.me/' + w.phone.replace(/\D/g, '');
+    wa.target = '_blank';
+    wa.rel = 'noopener';
+
+    card.append(title, phone, city, call, wa);
+    list.appendChild(card);
+  });
+}
+
+async function registerWorker() {
+  const name = document.getElementById('workerName').value.trim();
+  const phone = document.getElementById('workerPhone').value.trim();
+  const type = document.getElementById('workerType').value;
+  const city = document.getElementById('workerCity').value.trim();
+
+  if (!name || !phone || !city) {
+    alert('Enter your name, phone number and city');
+    return;
+  }
+
+  const button = document.querySelector(
+    'button[onclick="registerWorker()"]'
+  );
+  button.disabled = true;
+
+  const {error} = await db.from('workers').insert([
+    {name, phone, type, city}
+  ]);
+
+  button.disabled = false;
+
+  if (error) {
+    alert('Registration failed: ' + error.message);
+    return;
+  }
+
+  document.getElementById('workerName').value = '';
+  document.getElementById('workerPhone').value = '';
+  document.getElementById('workerCity').value = '';
+
+  await renderWorkers();
+  alert('Worker registered successfully!');
+}
+
+function searchServices() {
+  const q = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.service').forEach(item => {
+    item.style.display =
+      item.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function openService(name) {
+  document.getElementById('contact').style.display = 'block';
+  document.getElementById('chosen').textContent = name;
+  renderWorkers(name);
+}
+
+function callWorker() {
+  const phone = document.getElementById('phone').value.trim();
+  if (!phone) {
+    alert('Enter worker phone number first');
+    return;
+  }
+  location.href = 'tel:' + phone;
+}
+
+function whatsappWorker() {
+  const phone = document.getElementById('phone').value.replace(/\D/g, '');
+  if (!phone) {
+    alert('Enter worker phone number first');
+    return;
+  }
+  window.open('https://wa.me/' + phone, '_blank', 'noopener');
+}
+
+renderWorkers();
+</script>
+</body>
+</html>
