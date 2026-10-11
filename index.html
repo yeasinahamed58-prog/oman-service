@@ -5,12 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oman Service</title>
 <style>
-body{font-family:Arial;background:#f1f5f4;margin:0}
-header{background:#087f5b;color:white;padding:20px}
-input{padding:12px;width:90%;border-radius:8px;border:0}
-main{padding:16px}
-.services{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.service{background:white;padding:24px 5px;text-align:center;border-radius:10px;cursor:pointer}
+*{box-sizing:border-box}
+:root{--green:#087f5b;--dark:#075b43;--bg:#f3f7f5;--text:#172b25;--muted:#65756e}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);margin:0;line-height:1.5}
+header{background:linear-gradient(135deg,#087f5b,#075b43);color:white;padding:30px 20px 28px;border-radius:0 0 25px 25px;box-shadow:0 5px 18px #075b4325}
+header h1{font-size:32px;margin:0 0 8px;font-weight:800;letter-spacing:-.5px}
+header p{margin:0 0 22px;color:#e2fff2;font-size:17px}
+input,select{font:inherit;max-width:100%;padding:14px 15px;border:1px solid #dce6e0;border-radius:12px;background:white;color:var(--text);outline:none}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #087f5b18}
+header input{width:100%;border:0;border-radius:13px;box-shadow:0 3px 12px #003b2820}
+main{max-width:760px;margin:0 auto;padding:24px 16px 40px}
+h2{font-size:25px;margin:8px 0 20px;letter-spacing:-.4px}
+h3{font-size:20px;margin:0 0 14px}
+#workerName,#workerPhone,#workerCity{display:block;width:100%!important;margin:10px 0!important;padding:14px!important}
+#workerType{display:block;width:100%!important;margin:10px 0 14px!important;padding:14px!important}
+button{font:inherit;font-weight:700;background:var(--green);color:white;border:0;border-radius:12px;padding:13px 19px;cursor:pointer;box-shadow:0 4px 10px #087f5b22}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.6;cursor:wait}
+#workerList{margin:14px 0 28px}
+#workerList>div{background:white;padding:20px;margin:12px 0;border:1px solid #e7eee9;border-radius:17px;box-shadow:0 4px 14px #183b2b08;overflow-wrap:anywhere}
+#workerList h3{font-size:19px;margin:0 0 12px;color:#173d30}
+#workerList p{color:#52665c;margin:8px 0}
+#workerList a{display:inline-block;margin:8px 14px 0 0;color:var(--green);font-weight:700;text-decoration:none}
+#workerList a:hover{text-decoration:underline}
+#contact{border:1px solid #e0eae3;border-radius:16px}
+#contact input{width:100%!important}
+.services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.service{background:white;padding:22px 10px;text-align:center;border:1px solid #e5eee8;border-radius:16px;cursor:pointer;font-weight:700;color:#245541;box-shadow:0 3px 12px #183b2b08;transition:background .2s,transform .2s}
+.service:hover{background:#e6f5ed;transform:translateY(-2px)}
+.service:active{background:#d5eee1}
+@media(min-width:600px){header{padding:36px max(24px,calc((100% - 728px)/2))}header h1{font-size:38px}.services{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:360px){header h1{font-size:27px}.services{gap:8px}.service{padding:18px 5px;font-size:14px}main{padding:20px 12px}}
 </style>
 </head>
 <body>
