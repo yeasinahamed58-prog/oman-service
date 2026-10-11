@@ -142,23 +142,43 @@ async function registerWorker() {
   );
   button.disabled = true;
 
-  const {error} = await db.from('workers').insert([
-    {name, phone, type, city}
-  ]);
+  try {
+    const {data: existing, error: checkError} = await db
+      .from('workers')
+      .select('id')
+      .eq('phone', phone)
+      .limit(1);
 
-  button.disabled = false;
+    if (checkError) {
+      alert('Could not check phone number: ' + checkError.message);
+      return;
+    }
 
-  if (error) {
-    alert('Registration failed: ' + error.message);
-    return;
+    if (existing && existing.length > 0) {
+      alert('This phone number is already registered.');
+      return;
+    }
+
+    const {error} = await db.from('workers').insert([
+      {name, phone, type, city}
+    ]);
+
+    if (error) {
+      alert('Registration failed: ' + error.message);
+      return;
+    }
+
+    document.getElementById('workerName').value = '';
+    document.getElementById('workerPhone').value = '';
+    document.getElementById('workerCity').value = '';
+
+    await renderWorkers();
+    alert('Worker registered successfully!');
+  } catch (err) {
+    alert('Unexpected error: ' + err.message);
+  } finally {
+    button.disabled = false;
   }
-
-  document.getElementById('workerName').value = '';
-  document.getElementById('workerPhone').value = '';
-  document.getElementById('workerCity').value = '';
-
-  await renderWorkers();
-  alert('Worker registered successfully!');
 }
 
 function searchServices() {
